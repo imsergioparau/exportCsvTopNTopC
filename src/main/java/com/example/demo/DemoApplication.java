@@ -9,7 +9,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.*;
-import java.time.*;
 import java.util.*;
 
 @Slf4j
@@ -20,19 +19,19 @@ public class DemoApplication implements CommandLineRunner {
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
-	private final static String FILE= "C:\\Users\\sparau\\Desktop\\github-ranking-2022-02-26.csv";
+	private final static String FILE= "github-ranking-2022-02-26.csv";
 	private final static String cvsSplitBy = ",";
-	String topN ="0";
-	String topC ="";
+	private String topN ="0";
+	private String topC ="";
 	boolean validInputs;
 
 
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args){
 
 
-
+		//Comprobamos que se introducen correctamente los datos
 		while (!validInputs) {
 			interactionUser();
 
@@ -45,13 +44,12 @@ public class DemoApplication implements CommandLineRunner {
 			}
 		}
 
-
 		exportCsv();
 	}
 
 
 	private void interactionUser(){
-// Enter data using Scanner
+
 		Scanner in = new Scanner(System.in);
 
 		//Se introduce el número de filas que se quiere obtener
@@ -66,14 +64,17 @@ public class DemoApplication implements CommandLineRunner {
 
 	}
 
+	//comprueba si topN está completo
 	private boolean checktopNifCompleted(int increment){
 		return Integer.parseInt(topN) == increment;
 
 	}
 
+	//Exoportación del CSV
 	private void exportCsv () {
-		try (BufferedReader bufferedReader = new BufferedReader(new FileReader(FILE));) {
-			List<String> result = new ArrayList<>();
+		ClassLoader classLoader = getClass().getClassLoader();
+
+		try (BufferedReader bufferedReader = new BufferedReader(new FileReader(classLoader.getResource(FILE).getFile()));) {
 			int increment = 0;
 			String bline;
 
@@ -81,8 +82,9 @@ public class DemoApplication implements CommandLineRunner {
 
 				String[] splitedCsvData = bline.split(cvsSplitBy);
 
+				//comprobamos los valores en mayusculas y sin espacios, también que topN sea mayor o igual a la posición del lenguaje
 				if ((splitedCsvData[1].toUpperCase().trim().equals(topC.toUpperCase().trim()) && Integer.parseInt(topN) >= Integer.parseInt(splitedCsvData[0]))) {
-					result.add(bline);
+					//imprimimos los resultados
 					System.out.println(bline + "\n");
 					increment++;
 				}
@@ -90,10 +92,8 @@ public class DemoApplication implements CommandLineRunner {
 				if (checktopNifCompleted(increment)) {
 					break;
 				}
-
-
+				
 			}
-
 
 		} catch (IOException e) {
 			e.printStackTrace();
